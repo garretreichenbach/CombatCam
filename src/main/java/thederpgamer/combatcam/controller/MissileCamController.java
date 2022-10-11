@@ -44,7 +44,10 @@ public class MissileCamController extends AbstractControlManager {
 
 	@Override
 	public void onSwitch(boolean active) {
-		if(cameras.isEmpty()) return;
+		if(cameras.isEmpty()) {
+			getControlManagers().remove(this);
+			return;
+		}
 		if(active) {
 			//GameClient.getClientState().getController().queueUIAudio("0022_menu_ui - swoosh scroll large");
 			setChanged();
@@ -57,8 +60,8 @@ public class MissileCamController extends AbstractControlManager {
 		}
 
 		try {
-			GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getShipExternalFlightController().suspend(active);
-			GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getSegmentBuildController().suspend(active);
+			//GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getShipExternalFlightController().suspend(active);
+			//GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getSegmentBuildController().suspend(active);
 		} catch(NullPointerException ignored){
 		}
 	}
