@@ -58,6 +58,7 @@ public class MissileCamera extends Camera {
 		backwards.scale(5.0f);
 		getWorldTransform().origin.add(backwards);
 		getLookAlgorithm().force(getWorldTransform());
+		getLookAlgorithm().lookTo(missile.getWorldTransform());
 		updateViewer(timer);
 	}
 

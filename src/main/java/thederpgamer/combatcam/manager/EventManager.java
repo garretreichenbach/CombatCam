@@ -3,6 +3,7 @@ package thederpgamer.combatcam.manager;
 import api.common.GameClient;
 import api.listener.Listener;
 import api.listener.events.input.KeyPressEvent;
+import api.listener.events.weapon.MissileHitEvent;
 import api.listener.events.weapon.MissilePostAddEvent;
 import api.mod.StarLoader;
 import org.lwjgl.input.Keyboard;
@@ -31,13 +32,24 @@ public class EventManager {
 			}
 		}, combatCam);
 
+		StarLoader.registerListener(MissileHitEvent.class, new Listener<MissileHitEvent>() {
+			@Override
+			public void onEvent(MissileHitEvent event) {
+				try {
+					if(GameClient.getClientState() != null && event.getMissile() != null) MissileCamController.removeCamera(event.getMissile());
+				} catch(Exception exception) {
+					exception.printStackTrace();
+				}
+			}
+		}, combatCam);
+
 		StarLoader.registerListener(KeyPressEvent.class, new Listener<KeyPressEvent>() {
 			@Override
 			public void onEvent(KeyPressEvent event) {
 				if(event.getKey() == Keyboard.KEY_RCONTROL) CombatCam.camController.setActive(event.isKeyDown());
 				else {
 					if(Keyboard.isKeyDown(Keyboard.KEY_RCONTROL)) {
-						if(event.getKey() == Keyboard.KEY_RMETA && event.isKeyDown()) MissileCamController.next();
+						if(event.getKey() == Keyboard.KEY_RMENU && event.isKeyDown()) MissileCamController.next();
 					} else CombatCam.camController.setActive(false);
 				}
 			}

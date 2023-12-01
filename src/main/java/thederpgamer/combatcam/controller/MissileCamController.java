@@ -1,12 +1,13 @@
 package thederpgamer.combatcam.controller;
 
 import api.common.GameClient;
+import api.utils.StarRunnable;
 import org.schema.game.client.controller.manager.AbstractControlManager;
 import org.schema.game.common.data.missile.Missile;
 import org.schema.schine.graphicsengine.camera.Camera;
-import org.schema.schine.graphicsengine.camera.CameraMouseState;
 import org.schema.schine.graphicsengine.core.Controller;
 import org.schema.schine.graphicsengine.core.Timer;
+import thederpgamer.combatcam.CombatCam;
 import thederpgamer.combatcam.data.camera.MissileCamera;
 
 import java.util.HashMap;
@@ -21,6 +22,8 @@ public class MissileCamController extends AbstractControlManager {
 	private static final HashMap<Missile, MissileCamera> cameras = new HashMap<>();
 	public static MissileCamera currentCamera;
 
+	private static int currentIndex;
+
 	public MissileCamController() {
 		super(GameClient.getClientState());
 	}
@@ -29,41 +32,44 @@ public class MissileCamController extends AbstractControlManager {
 	public void setActive(boolean active) {
 		if(!active) Controller.setCamera(getDefaultCamera());
 		else next();
-		//GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().suspend(active);
 		super.setActive(active);
 	}
 
 	@Override
 	public void update(Timer timer) {
-		CameraMouseState.setGrabbed(false);
-		//GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().suspend(true);
-		if(currentCamera != null && currentCamera.checkValid()) {
-			currentCamera.update(timer, false);
-		} else setActive(false);
+		if(currentCamera != null && currentCamera.checkValid()) currentCamera.update(timer, false);
+		else setActive(false);
 	}
 
 	@Override
-	public void onSwitch(boolean active) {
+	public void onSwitch(final boolean active) {
 		if(cameras.isEmpty()) {
 			getControlManagers().remove(this);
+			try {
+				GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getShipExternalFlightController().suspend(false);
+				GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getSegmentBuildController().suspend(false);
+			} catch(NullPointerException exception) {
+				exception.printStackTrace();
+			}
 			return;
 		}
 		if(active) {
-			//GameClient.getClientState().getController().queueUIAudio("0022_menu_ui - swoosh scroll large");
 			setChanged();
 			notifyObservers();
 			next();
 			getControlManagers().add(this);
-		} else {
-			//GameClient.getClientState().getController().queueUIAudio("0022_menu_ui - swoosh scroll small");
-			getControlManagers().remove(this);
-		}
-
-		try {
-			//GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getShipExternalFlightController().suspend(active);
-			//GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getSegmentBuildController().suspend(active);
-		} catch(NullPointerException ignored){
-		}
+		} else getControlManagers().remove(this);
+		(new StarRunnable() {
+			@Override
+			public void run() {
+				try {
+					GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getShipExternalFlightController().suspend(active);
+					GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getSegmentBuildController().suspend(active);
+				} catch(NullPointerException exception) {
+					exception.printStackTrace();
+				}
+			}
+		}).runLater(CombatCam.getInstance(), 1);
 	}
 
 	public static void next() {
@@ -72,13 +78,12 @@ public class MissileCamController extends AbstractControlManager {
 				MissileCamera nextCamera = null;
 				for(MissileCamera camera : cameras.values()) {
 					if(camera == currentCamera) {
-						if(nextCamera != null) {
-							currentCamera = nextCamera;
-							break;
-						}
-					} else nextCamera = camera;
+						nextCamera = cameras.values().toArray(new MissileCamera[0])[(currentIndex + 1) % cameras.size()];
+						currentIndex = (currentIndex + 1) % cameras.size();
+						break;
+					}
 				}
-				if(currentCamera == nextCamera) currentCamera = cameras.values().iterator().next();
+				currentCamera = nextCamera;
 				if(currentCamera != null) {
 					Controller.setCamera(currentCamera);
 					currentCamera.reset();
@@ -108,5 +113,9 @@ public class MissileCamController extends AbstractControlManager {
 		if(GameClient.getClientState().isInAnyStructureBuildMode()) return GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getSegmentBuildController().getShipBuildCamera();
 		else if(GameClient.getClientState().isInFlightMode()) return GameClient.getClientState().getGlobalGameControlManager().getIngameControlManager().getPlayerGameControlManager().getPlayerIntercationManager().getInShipControlManager().getShipControlManager().getShipExternalFlightController().shipCamera;
 		else return Controller.getCamera();
+	}
+
+	public static boolean hasCamera() {
+		return !cameras.isEmpty();
 	}
 }

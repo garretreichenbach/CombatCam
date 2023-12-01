@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /**
- * Main class for EdenCore mod.
+ * Main class for CombatCam mod.
  *
  * @author TheDerpGamer
  * @version 1.0 - [06/27/2021]
