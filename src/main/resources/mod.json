@@ -2,12 +2,12 @@
   "name": "CombatCam",
   "author": "TheDerpGamer",
   "description": "A mod that adds various combat-related camera utilities.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "starmade_version": "0.203.157",
   "client_mod": true,
   "server_mod": false,
   "main_class": "thederpgamer.combatcam.CombatCam",
-  "smd_resource_id": 8600,
+  "smd_resource_id": 8601,
   "dependencies": [
     -1
   ],
