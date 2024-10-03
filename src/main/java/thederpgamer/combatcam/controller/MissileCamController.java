@@ -92,7 +92,7 @@ public class MissileCamController extends AbstractControlManager {
 					currentCamera.reset();
 				} else {
 					Camera defaultCam = getDefaultCamera();
-					if(defaultCam != null) Controller.setcamera(defaultCam);
+					if(defaultCam != null) Controller.setCamera(defaultCam);
 				}
 			}
 		}
