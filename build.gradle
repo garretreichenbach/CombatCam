@@ -11,7 +11,7 @@ def starmadeDirectory = 'C:/Program Files (x86)/Steam/steamapps/common/StarMade/
 def jarName = 'CombatCam'
 mainClassName = 'thederpgamer.combatcam.CombatCam'
 group 'thederpgamer.combatcam'
-version '1.0.2'
+version '1.0.3'
 
 repositories {
     mavenCentral()

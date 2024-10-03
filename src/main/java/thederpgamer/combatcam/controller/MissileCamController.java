@@ -30,7 +30,10 @@ public class MissileCamController extends AbstractControlManager {
 
 	@Override
 	public void setActive(boolean active) {
-		if(!active) Controller.setCamera(getDefaultCamera());
+		if(!active) {
+			Camera defaultCam = getDefaultCamera();
+			if(defaultCam != null) Controller.setCamera(defaultCam);
+		}
 		else next();
 		super.setActive(active);
 	}
@@ -87,7 +90,10 @@ public class MissileCamController extends AbstractControlManager {
 				if(currentCamera != null) {
 					Controller.setCamera(currentCamera);
 					currentCamera.reset();
-				} else Controller.setCamera(getDefaultCamera());
+				} else {
+					Camera defaultCam = getDefaultCamera();
+					if(defaultCam != null) Controller.setcamera(defaultCam);
+				}
 			}
 		}
 	}
